@@ -66,9 +66,9 @@ where
     F: FnOnce(&mut VirtualMachine),
 {
     #[cfg(feature = "flame-it")]
-    let main_guard = flame::start_guard("RustPython main");
+    let main_guard = flame::start_guard("RustXonsh main");
     env_logger::init();
-    let app = App::new("RustPython");
+    let app = App::new("RustXonsh");
     let matches = parse_arguments(app);
     let settings = create_settings(&matches);
 
@@ -171,8 +171,8 @@ fn parse_arguments<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
         .setting(AppSettings::TrailingVarArg)
         .version(crate_version!())
         .author(crate_authors!())
-        .about("Rust implementation of the Python language")
-        .usage("rustpython [OPTIONS] [-c CMD | -m MODULE | FILE] [PYARGS]...")
+        .about("Rust implementation of the Xonsh language")
+        .usage("rustxonsh [OPTIONS] [-c CMD | -m MODULE | FILE] [PYARGS]...")
         .arg(
             Arg::with_name("script")
                 .required(false)
@@ -561,7 +561,7 @@ __import__("io").TextIOWrapper(
         }
     } else {
         println!(
-            "Welcome to the magnificent Rust Python {} interpreter \u{1f631} \u{1f596}",
+            "Welcome to the magnificent RustXonsh {} interpreter \u{1f631} \u{1f596}",
             crate_version!()
         );
         shell::run_shell(&vm, scope)?;

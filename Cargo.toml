@@ -2,12 +2,12 @@
 # cargo-features = ['resolver']
 # REDOX END
 [package]
-name = "rustpython"
-version = "0.1.2"
-authors = ["RustPython Team"]
+name = "rustxonsh"
+version = "0.0.1"
+authors = ["Peter Ye","RustPython Team"]
 edition = "2018"
-description = "A python interpreter written in rust."
-repository = "https://github.com/RustPython/RustPython"
+description = "Xonsh rewritten in Rust"
+repository = "https://github.com/yaxollum/RustXonsh"
 license = "MIT"
 include = ["LICENSE", "Cargo.toml", "src/**/*.rs"]
 
@@ -62,7 +62,7 @@ name = "microbenchmarks"
 harness = false
 
 [[bin]]
-name = "rustpython"
+name = "rustxonsh"
 path = "src/main.rs"
 
 [profile.dev.package."*"]

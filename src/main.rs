@@ -1,3 +1,3 @@
 pub fn main() {
-    rustpython::run(|_vm| {})
+    rustxonsh::run(|_vm| {})
 }
