@@ -5,7 +5,7 @@ The goal of RustXonsh is to rewrite [Xonsh](https://github.com/xonsh/xonsh) in R
 ## Features
 
 - [x] Support for Python 3.8 syntax (from RustPython)
-- [ ] [Path string literals](https://xon.sh/tutorial.html#advanced-string-literals) (e.g. `p"/etc/passwd"`)
+- [x] [Path string literals](https://xon.sh/tutorial.html#advanced-string-literals) (e.g. `p"/etc/passwd"`)
 - [ ] Executing subprocess commands using `$[]`
 - [ ] Capturing subprocess command output using `$()`
 - [ ] Executing subprocess commands using regular shell syntax (e.g. `echo hello`)
