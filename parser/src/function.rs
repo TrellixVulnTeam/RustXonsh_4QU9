@@ -94,3 +94,33 @@ pub fn parse_args(func_args: Vec<FunctionArgument>) -> Result<ArgumentList, Lexi
 fn is_starred(exp: &ast::Expr) -> bool {
     matches!(exp.node, ast::ExprKind::Starred { .. })
 }
+
+pub fn rustxonsh_function_call(
+    location: ast::Location,
+    name: &str,
+    params: Vec<ast::Expr>,
+) -> ast::Expr {
+    let rustxonsh = ast::Expr::new(
+        location,
+        ast::ExprKind::Name {
+            id: "rustxonsh".to_owned(),
+            ctx: ast::ExprContext::Load,
+        },
+    );
+
+    ast::Expr::new(
+        location,
+        ast::ExprKind::Call {
+            func: Box::new(ast::Expr::new(
+                location,
+                ast::ExprKind::Attribute {
+                    value: Box::new(rustxonsh),
+                    attr: name.to_owned(),
+                    ctx: ast::ExprContext::Load,
+                },
+            )),
+            args: params,
+            keywords: Vec::new(),
+        },
+    )
+}

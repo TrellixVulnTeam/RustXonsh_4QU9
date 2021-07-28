@@ -11,6 +11,7 @@ pub enum Tok {
     Float { value: f64 },
     Complex { real: f64, imag: f64 },
     String { value: String, is_fstring: bool },
+    Path { value: String, is_fstring: bool },
     Bytes { value: Vec<u8> },
     Newline,
     Indent,
@@ -115,6 +116,13 @@ impl fmt::Display for Tok {
             Float { value } => write!(f, "'{}'", value),
             Complex { real, imag } => write!(f, "{}j{}", real, imag),
             String { value, is_fstring } => {
+                if *is_fstring {
+                    write!(f, "f")?
+                }
+                write!(f, "{:?}", value)
+            }
+            Path { value, is_fstring } => {
+                write!(f, "p")?;
                 if *is_fstring {
                     write!(f, "f")?
                 }

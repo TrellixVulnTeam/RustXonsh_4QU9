@@ -7,7 +7,7 @@ use std::iter::FromIterator;
 
 use crate::ast;
 use crate::fstring::parse_located_fstring;
-use crate::function::{ArgumentList, parse_args, parse_params};
+use crate::function::{ArgumentList, parse_args, parse_params, rustxonsh_function_call};
 use crate::error::LexicalError;
 use crate::lexer;
 
@@ -974,6 +974,26 @@ Atom: ast::Expr = {
             values.into_iter().next().unwrap()
         })
     },
+    <location:@L> <s:(@L path)+> =>? {
+        let values = s.into_iter().map(|(loc, (value, is_fstring))| {
+            if is_fstring {
+                parse_located_fstring(&value, loc)
+            } else {
+                Ok(ast::Expr::new(
+                    loc,
+                    ast::ExprKind::Constant { value: value.into(), kind: None },
+                ))
+            }
+        });
+        let values = values.collect::<Result<Vec<_>, _>>()?;
+
+        let string_expr = if values.len() > 1 {
+            ast::Expr::new(location, ast::ExprKind::JoinedStr { values })
+        } else {
+            values.into_iter().next().unwrap()
+        };
+        Ok(rustxonsh_function_call(location, "Path", vec![string_expr]))
+    },
     <location:@L> <value:Constant> => ast::Expr {
         location,
         custom: (),
@@ -1298,6 +1318,7 @@ extern {
         float => lexer::Tok::Float { value: <f64> },
         complex => lexer::Tok::Complex { real: <f64>, imag: <f64> },
         string => lexer::Tok::String { value: <String>, is_fstring: <bool> },
+        path => lexer::Tok::Path { value: <String>, is_fstring: <bool> },
         bytes => lexer::Tok::Bytes { value: <Vec<u8>> },
         name => lexer::Tok::Name { name: <String> },
         "\n" => lexer::Tok::Newline,

@@ -343,6 +343,15 @@ impl VirtualMachine {
                 err
             })?;
 
+            let rustxonsh = self.import("rustxonsh", None, 0).map_err(|import_err| {
+                let err = self.new_runtime_error("Could not import rustxonsh.".to_owned());
+                err.set_cause(Some(import_err));
+                err
+            })?;
+            extend_module!(self, self.builtins.clone(), {
+                "rustxonsh" => rustxonsh
+            });
+
             #[cfg(any(not(target_arch = "wasm32"), target_os = "wasi"))]
             {
                 // this isn't fully compatible with CPython; it imports "io" and sets

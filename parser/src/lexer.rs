@@ -215,11 +215,12 @@ where
         let mut saw_r = false;
         let mut saw_u = false;
         let mut saw_f = false;
+        let mut saw_p = false;
         loop {
-            // Detect r"", f"", b"" and u""
-            if !(saw_b || saw_u || saw_f) && matches!(self.chr0, Some('b') | Some('B')) {
+            // Detect r"", f"", b"", u"", and p""
+            if !(saw_b || saw_u || saw_f || saw_p) && matches!(self.chr0, Some('b') | Some('B')) {
                 saw_b = true;
-            } else if !(saw_b || saw_r || saw_u || saw_f)
+            } else if !(saw_b || saw_r || saw_u || saw_f || saw_p)
                 && matches!(self.chr0, Some('u') | Some('U'))
             {
                 saw_u = true;
@@ -229,6 +230,8 @@ where
                 && (self.chr0 == Some('f') || self.chr0 == Some('F'))
             {
                 saw_f = true;
+            } else if !(saw_b || saw_u || saw_p) && self.chr0 == Some('p') {
+                saw_p = true;
             } else {
                 break;
             }
@@ -238,7 +241,7 @@ where
 
             // Check if we have a string:
             if self.chr0 == Some('"') || self.chr0 == Some('\'') {
-                return self.lex_string(saw_b, saw_r, saw_u, saw_f);
+                return self.lex_string(saw_b, saw_r, saw_u, saw_f, saw_p);
             }
         }
 
@@ -500,6 +503,7 @@ where
         is_raw: bool,
         _is_unicode: bool,
         is_fstring: bool,
+        is_path: bool,
     ) -> LexResult {
         let quote_char = self.next_char().unwrap();
         let mut string_content = String::new();
@@ -610,6 +614,11 @@ where
         let tok = if is_bytes {
             Tok::Bytes {
                 value: string_content.chars().map(|c| c as u8).collect(),
+            }
+        } else if is_path {
+            Tok::Path {
+                value: string_content,
+                is_fstring,
             }
         } else {
             Tok::String {
@@ -833,7 +842,7 @@ where
                 self.lex_comment();
             }
             '"' | '\'' => {
-                let string = self.lex_string(false, false, false, false)?;
+                let string = self.lex_string(false, false, false, false, false)?;
                 self.emit(string);
             }
             '=' => {
