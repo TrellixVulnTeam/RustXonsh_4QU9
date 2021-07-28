@@ -1169,8 +1169,6 @@ class TestBasicOps(unittest.TestCase):
         p.__setstate__((0, 0, 0x1000))  # will access tuple element 1 if not clamped
         self.assertRaises(StopIteration, next, p)
 
-    # TODO: RUSTPYTHON
-    @unittest.expectedFailure
     def test_repeat(self):
         self.assertEqual(list(repeat(object='a', times=3)), ['a', 'a', 'a'])
         self.assertEqual(lzip(range(3),repeat('a')),
@@ -1197,8 +1195,6 @@ class TestBasicOps(unittest.TestCase):
         for proto in range(pickle.HIGHEST_PROTOCOL + 1):
             self.pickletest(proto, repeat(object='a', times=10))
 
-    # TODO: RUSTPYTHON
-    @unittest.expectedFailure
     def test_repeat_with_negative_times(self):
         self.assertEqual(repr(repeat('a', -1)), "repeat('a', 0)")
         self.assertEqual(repr(repeat('a', -2)), "repeat('a', 0)")
@@ -1750,8 +1746,6 @@ class TestExamples(unittest.TestCase):
     def test_map(self):
         self.assertEqual(list(map(pow, (2,3,10), (5,2,3))), [32, 9, 1000])
 
-    # TODO: RUSTPYTHON
-    @unittest.expectedFailure
     def test_islice(self):
         self.assertEqual(list(islice('ABCDEFG', 2)), list('AB'))
         self.assertEqual(list(islice('ABCDEFG', 2, 4)), list('CD'))
@@ -2181,15 +2175,11 @@ class TestVariousIteratorArgs(unittest.TestCase):
 
 class LengthTransparency(unittest.TestCase):
 
-    # TODO: RUSTPYTHON
-    @unittest.expectedFailure
     def test_repeat(self):
         self.assertEqual(operator.length_hint(repeat(None, 50)), 50)
         self.assertEqual(operator.length_hint(repeat(None, 0)), 0)
         self.assertEqual(operator.length_hint(repeat(None), 12), 12)
 
-    # TODO: RUSTPYTHON
-    @unittest.expectedFailure
     def test_repeat_with_negative_times(self):
         self.assertEqual(operator.length_hint(repeat(None, -1)), 0)
         self.assertEqual(operator.length_hint(repeat(None, -2)), 0)
@@ -2658,9 +2648,7 @@ def test_main(verbose=None):
             counts[i] = sys.gettotalrefcount()
         print(counts)
 
-    # TODO: RUSTPYTHON this hangs or is very slow
-    # doctest the examples in the library reference
-    # support.run_doctest(sys.modules[__name__], verbose)
+    support.run_doctest(sys.modules[__name__], verbose)
 
 if __name__ == "__main__":
     test_main(verbose=True)
