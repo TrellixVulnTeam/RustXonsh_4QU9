@@ -93,7 +93,7 @@ pub(crate) fn init(context: &PyContext) {
     PyBytes::extend_class(context, &context.types.bytes_type);
     let bytes_type = &context.types.bytes_type;
     extend_class!(context, bytes_type, {
-        "maketrans" => context.new_method("maketrans", PyBytesInner::maketrans),
+        "maketrans" => context.new_method("maketrans", PyBytesInner::maketrans, bytes_type.clone()),
     });
     PyBytesIterator::extend_class(context, &context.types.bytes_iterator_type);
 }
@@ -151,7 +151,7 @@ impl PyBytes {
 
     #[pymethod(name = "__getitem__")]
     fn getitem(&self, needle: PyObjectRef, vm: &VirtualMachine) -> PyResult {
-        self.inner.getitem("byte", needle, vm)
+        self.inner.getitem("byte", needle, vm) // byte != Self::NAME
     }
 
     #[pymethod(name = "isalnum")]

@@ -23,8 +23,8 @@ use crate::slots::{Comparable, Hashable, Iterable, PyComparisonOp, PyIter, Unhas
 use crate::utils::Either;
 use crate::vm::{ReprGuard, VirtualMachine};
 use crate::{
-    PyClassImpl, PyComparisonValue, PyContext, PyIterable, PyObjectRef, PyRef, PyResult, PyValue,
-    TryFromObject, TypeProtocol,
+    PyClassDef, PyClassImpl, PyComparisonValue, PyContext, PyIterable, PyObjectRef, PyRef,
+    PyResult, PyValue, TryFromObject, TypeProtocol,
 };
 
 /// Built-in mutable sequence.
@@ -172,7 +172,7 @@ impl PyList {
 
     #[pymethod(name = "__getitem__")]
     fn getitem(zelf: PyRef<Self>, needle: PyObjectRef, vm: &VirtualMachine) -> PyResult {
-        let result = match zelf.borrow_vec().get_item(vm, needle, "list")? {
+        let result = match zelf.borrow_vec().get_item(vm, needle, Self::NAME)? {
             Either::A(obj) => obj,
             Either::B(vec) => vm.ctx.new_list(vec),
         };
@@ -182,11 +182,11 @@ impl PyList {
     #[pymethod(name = "__setitem__")]
     fn setitem(
         &self,
-        subscript: SequenceIndex,
+        needle: PyObjectRef,
         value: PyObjectRef,
         vm: &VirtualMachine,
     ) -> PyResult<()> {
-        match subscript {
+        match SequenceIndex::try_from_object_for(vm, needle, Self::NAME)? {
             SequenceIndex::Int(index) => self.setindex(index, value, vm),
             SequenceIndex::Slice(slice) => {
                 if let Ok(sec) = PyIterable::try_from_object(vm, value) {
@@ -240,7 +240,7 @@ impl PyList {
 
     #[pymethod(name = "__rmul__")]
     fn rmul(&self, counter: isize, vm: &VirtualMachine) -> PyObjectRef {
-        self.mul(counter, &vm)
+        self.mul(counter, vm)
     }
 
     #[pymethod(name = "__imul__")]
@@ -391,16 +391,21 @@ impl PyList {
     #[pyslot]
     fn tp_new(
         cls: PyTypeRef,
-        iterable: OptionalArg<PyObjectRef>,
+        _iterable: OptionalArg<PyObjectRef>,
         vm: &VirtualMachine,
     ) -> PyResult<PyRef<Self>> {
-        let elements = if let OptionalArg::Present(iterable) = iterable {
+        PyList::default().into_ref_with_type(vm, cls)
+    }
+
+    #[pymethod(name = "__init__")]
+    fn init(&self, iterable: OptionalArg<PyObjectRef>, vm: &VirtualMachine) -> PyResult<()> {
+        let mut elements = if let OptionalArg::Present(iterable) = iterable {
             vm.extract_elements(&iterable)?
         } else {
             vec![]
         };
-
-        PyList::from(elements).into_ref_with_type(vm, cls)
+        std::mem::swap(self.borrow_vec_mut().deref_mut(), &mut elements);
+        Ok(())
     }
 }
 

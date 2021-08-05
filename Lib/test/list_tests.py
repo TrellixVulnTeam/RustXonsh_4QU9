@@ -12,8 +12,6 @@ from test import support, seq_tests
 
 class CommonTest(seq_tests.CommonTest):
 
-    # TODO: RUSTPYTHON
-    @unittest.expectedFailure
     def test_init(self):
         # Iterable arg is optional
         self.assertEqual(self.type2test([]), self.type2test())
@@ -39,8 +37,6 @@ class CommonTest(seq_tests.CommonTest):
         with self.assertRaisesRegex(TypeError, msg):
             a['a']
 
-    # TODO: RUSTPYTHON
-    @unittest.expectedFailure
     def test_setitem_error(self):
         a = []
         msg = "list indices must be integers or slices"
@@ -107,8 +103,6 @@ class CommonTest(seq_tests.CommonTest):
         # Bug 3689: make sure list-reversed-iterator doesn't have __len__
         self.assertRaises(TypeError, len, reversed([1,2,3]))
 
-    # TODO: RUSTPYTHON
-    @unittest.expectedFailure
     def test_setitem(self):
         a = self.type2test([0, 1])
         a[0] = 0

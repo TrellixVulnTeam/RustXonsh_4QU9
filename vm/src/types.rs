@@ -94,6 +94,7 @@ pub struct TypeZoo {
     pub str_type: PyTypeRef,
     pub range_type: PyTypeRef,
     pub range_iterator_type: PyTypeRef,
+    pub longrange_iterator_type: PyTypeRef,
     pub slice_type: PyTypeRef,
     pub type_type: PyTypeRef,
     pub zip_type: PyTypeRef,
@@ -187,6 +188,7 @@ impl TypeZoo {
             module_type: module::PyModule::init_bare_type().clone(),
             namespace_type: namespace::PyNamespace::init_bare_type().clone(),
             range_iterator_type: range::PyRangeIterator::init_bare_type().clone(),
+            longrange_iterator_type: range::PyLongRangeIterator::init_bare_type().clone(),
             set_iterator_type: set::PySetIterator::init_bare_type().clone(),
             str_iterator_type: pystr::PyStrIterator::init_bare_type().clone(),
             str_reverseiterator_type: pystr::PyStrReverseIterator::init_bare_type().clone(),
@@ -202,46 +204,46 @@ impl TypeZoo {
 
     /// Fill attributes of builtin types.
     pub(crate) fn extend(context: &PyContext) {
-        pytype::init(&context);
-        object::init(&context);
-        list::init(&context);
-        set::init(&context);
-        tuple::init(&context);
-        dict::init(&context);
-        builtinfunc::init(&context);
-        function::init(&context);
-        staticmethod::init(&context);
-        classmethod::init(&context);
-        generator::init(&context);
-        coroutine::init(&context);
-        asyncgenerator::init(&context);
-        int::init(&context);
-        float::init(&context);
-        complex::init(&context);
-        bytes::init(&context);
-        bytearray::init(&context);
-        property::init(&context);
-        getset::init(&context);
-        memory::init(&context);
-        pystr::init(&context);
-        range::init(&context);
-        slice::init(&context);
-        pysuper::init(&context);
-        iter::init(&context);
-        enumerate::init(&context);
-        filter::init(&context);
-        map::init(&context);
-        zip::init(&context);
-        pybool::init(&context);
-        code::init(&context);
-        frame::init(&context);
-        weakref::init(&context);
-        weakproxy::init(&context);
-        singletons::init(&context);
-        module::init(&context);
-        namespace::init(&context);
-        mappingproxy::init(&context);
-        traceback::init(&context);
+        pytype::init(context);
+        object::init(context);
+        list::init(context);
+        set::init(context);
+        tuple::init(context);
+        dict::init(context);
+        builtinfunc::init(context);
+        function::init(context);
+        staticmethod::init(context);
+        classmethod::init(context);
+        generator::init(context);
+        coroutine::init(context);
+        asyncgenerator::init(context);
+        int::init(context);
+        float::init(context);
+        complex::init(context);
+        bytes::init(context);
+        bytearray::init(context);
+        property::init(context);
+        getset::init(context);
+        memory::init(context);
+        pystr::init(context);
+        range::init(context);
+        slice::init(context);
+        pysuper::init(context);
+        iter::init(context);
+        enumerate::init(context);
+        filter::init(context);
+        map::init(context);
+        zip::init(context);
+        pybool::init(context);
+        code::init(context);
+        frame::init(context);
+        weakref::init(context);
+        weakproxy::init(context);
+        singletons::init(context);
+        module::init(context);
+        namespace::init(context);
+        mappingproxy::init(context);
+        traceback::init(context);
     }
 }
 

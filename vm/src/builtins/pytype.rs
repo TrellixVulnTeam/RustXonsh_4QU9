@@ -94,7 +94,7 @@ impl PyType {
         if let Some(r) = f(self) {
             Some(r)
         } else {
-            self.mro.iter().find_map(|cls| f(&cls))
+            self.mro.iter().find_map(|cls| f(cls))
         }
     }
 
@@ -306,6 +306,14 @@ impl PyType {
             .read()
             .get("__qualname__")
             .cloned()
+            // We need to exclude this method from going into recursion:
+            .and_then(|found| {
+                if found.isinstance(&vm.ctx.types.getset_type) {
+                    None
+                } else {
+                    Some(found)
+                }
+            })
             .unwrap_or_else(|| vm.ctx.new_str(self.name.clone()))
     }
 
@@ -316,6 +324,14 @@ impl PyType {
             .read()
             .get("__module__")
             .cloned()
+            // We need to exclude this method from going into recursion:
+            .and_then(|found| {
+                if found.isinstance(&vm.ctx.types.getset_type) {
+                    None
+                } else {
+                    Some(found)
+                }
+            })
             .unwrap_or_else(|| vm.ctx.new_str("builtins"))
     }
 
@@ -579,7 +595,7 @@ impl Callable for PyType {
         vm_trace!("type_call: {:?}", zelf);
         let obj = call_tp_new(zelf.clone(), zelf.clone(), args.clone(), vm)?;
 
-        if (zelf.is(&vm.ctx.types.type_type) && args.kwargs.is_empty()) || !obj.isinstance(&zelf) {
+        if (zelf.is(&vm.ctx.types.type_type) && args.kwargs.is_empty()) || !obj.isinstance(zelf) {
             return Ok(obj);
         }
 
