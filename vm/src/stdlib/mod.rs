@@ -31,6 +31,7 @@ pub(crate) mod pystruct;
 mod random;
 // TODO: maybe make this an extension module, if we ever get those
 // mod re;
+mod rustxonsh;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod socket;
 mod sre;
@@ -123,6 +124,7 @@ pub fn get_module_inits() -> StdlibMap {
             "pyexpat" => pyexpat::make_module,
             "_platform" => platform::make_module,
             "_random" => random::make_module,
+            "_rustxonsh" => rustxonsh::make_module,
             "_sre" => sre::make_module,
             "_string" => string::make_module,
             "_struct" => pystruct::make_module,

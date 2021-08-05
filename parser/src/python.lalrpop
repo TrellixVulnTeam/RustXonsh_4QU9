@@ -955,6 +955,7 @@ SliceOp: Option<ast::Expr> = {
 }
 
 Atom: ast::Expr = {
+    Subproc,
     <location:@L> <s:(@L string)+> =>? {
         let values = s.into_iter().map(|(loc, (value, is_fstring))| {
             if is_fstring {
@@ -1221,6 +1222,29 @@ Bytes: Vec<u8> = {
 
 Identifier: String = <s:name> => s;
 
+Subproc: ast::Expr = {
+    <location:@L> "$[" <s:(@L string)+> "]" =>? {
+        let mut values = s.into_iter().map(|(loc, (value, is_fstring))| {
+            if is_fstring {
+                parse_located_fstring(&value, loc)
+            } else {
+                Ok(ast::Expr::new(
+                    loc,
+                    ast::ExprKind::Constant { value: value.into(), kind: None },
+                ))
+            }
+        });
+        let command=values.next().unwrap()?;
+        let args=values.collect::<Result<Vec<_>, _>>()?;
+        let args_list_expr=ast::Expr {
+            location,
+            custom: (),
+            node: ast::ExprKind::List { elts: args, ctx: ast::ExprContext::Load }
+        };
+        Ok(rustxonsh_function_call(location, "subproc_uncaptured", vec![command,args_list_expr]))
+    }
+};
+
 // Hook external lexer:
 extern {
     type Location = ast::Location;
@@ -1323,5 +1347,6 @@ extern {
         name => lexer::Tok::Name { name: <String> },
         "\n" => lexer::Tok::Newline,
         ";" => lexer::Tok::Semi,
+        "$[" => lexer::Tok::LDollarSqb,
     }
 }

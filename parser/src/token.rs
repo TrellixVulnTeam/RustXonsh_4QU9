@@ -68,6 +68,10 @@ pub enum Tok {
     Rarrow,
     Ellipsis,
 
+    // Xonsh tokens
+    LDollarSqb,
+    Dollar,
+
     // Keywords (alphabetically):
     False,
     None,
@@ -194,6 +198,8 @@ impl fmt::Display for Tok {
             AtEqual => f.write_str("'@='"),
             Rarrow => f.write_str("'->'"),
             Ellipsis => f.write_str("'...'"),
+            LDollarSqb => f.write_str("'$['"),
+            Dollar => f.write_str("'$'"),
             False => f.write_str("'False'"),
             None => f.write_str("'None'"),
             True => f.write_str("'True'"),

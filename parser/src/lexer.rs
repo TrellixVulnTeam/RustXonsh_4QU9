@@ -1069,6 +1069,22 @@ where
                 }
                 self.nesting -= 1;
             }
+            '$' => {
+                let tok_start = self.get_pos();
+                self.next_char();
+                match self.chr0 {
+                    Some('[') => {
+                        self.next_char();
+                        let tok_end = self.get_pos();
+                        self.emit((tok_start, Tok::LDollarSqb, tok_end));
+                        self.nesting += 1;
+                    }
+                    _ => {
+                        let tok_end = self.get_pos();
+                        self.emit((tok_start, Tok::Dollar, tok_end));
+                    }
+                }
+            }
             ':' => {
                 let tok_start = self.get_pos();
                 self.next_char();
