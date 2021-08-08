@@ -18,6 +18,7 @@ pub struct LexicalError {
 #[derive(Debug, PartialEq)]
 pub enum LexicalErrorType {
     StringError,
+    SubprocError,
     UnicodeError,
     NestingError,
     IndentationError,
@@ -37,6 +38,7 @@ impl fmt::Display for LexicalErrorType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             LexicalErrorType::StringError => write!(f, "Got unexpected string"),
+            LexicalErrorType::SubprocError => write!(f, "Got unexpected subproc"),
             LexicalErrorType::FStringError(error) => write!(f, "Got error in f-string: {}", error),
             LexicalErrorType::UnicodeError => write!(f, "Got unexpected unicode"),
             LexicalErrorType::NestingError => write!(f, "Got unexpected nesting"),

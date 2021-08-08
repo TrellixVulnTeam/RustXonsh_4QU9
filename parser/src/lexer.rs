@@ -630,6 +630,93 @@ where
         Ok((start_pos, tok, end_pos))
     }
 
+    fn lex_subproc_unquoted(&mut self, closing_bracket: char) -> LexResult {
+        let mut name = String::new();
+        let start_pos = self.get_pos();
+
+        // Detect potential string like fr'' f'' u'' r''
+        let mut saw_r = false;
+        let mut saw_u = false;
+        let mut saw_f = false;
+        loop {
+            // Detect r"", f"", and u""
+            if !(saw_r || saw_u || saw_f) && matches!(self.chr0, Some('u') | Some('U')) {
+                saw_u = true;
+            } else if !(saw_r || saw_u) && (self.chr0 == Some('r') || self.chr0 == Some('R')) {
+                saw_r = true;
+            } else if !(saw_u || saw_f) && (self.chr0 == Some('f') || self.chr0 == Some('F')) {
+                saw_f = true;
+            } else {
+                break;
+            }
+
+            // Take up char into name:
+            name.push(self.next_char().unwrap());
+
+            // Check if we have a string:
+            if self.chr0 == Some('"') || self.chr0 == Some('\'') {
+                return self.lex_string(false, saw_r, saw_u, saw_f, false);
+            }
+        }
+
+        loop {
+            match self.chr0 {
+                Some(c) => {
+                    if c == ' ' || c == closing_bracket {
+                        break;
+                    } else {
+                        name.push(self.next_char().unwrap());
+                    }
+                }
+                None => {
+                    break;
+                }
+            }
+        }
+
+        let end_pos = self.get_pos();
+
+        Ok((
+            start_pos,
+            Tok::String {
+                value: name,
+                is_fstring: false,
+            },
+            end_pos,
+        ))
+    }
+
+    fn lex_subproc_arg(&mut self, closing_bracket: char) -> LexResult {
+        match self.chr0.unwrap() {
+            '"' | '\'' => self.lex_string(false, false, false, false, false),
+            _ => self.lex_subproc_unquoted(closing_bracket),
+        }
+    }
+
+    fn lex_subproc(&mut self, closing_bracket: char) -> Result<Vec<Spanned>, LexicalError> {
+        let mut args = Vec::<Spanned>::new();
+        loop {
+            match self.chr0 {
+                Some(' ') => {
+                    self.next_char();
+                }
+                Some(c) => {
+                    if c == closing_bracket {
+                        return Ok(args);
+                    } else {
+                        args.push(self.lex_subproc_arg(closing_bracket)?)
+                    }
+                }
+                None => {
+                    return Err(LexicalError {
+                        error: LexicalErrorType::SubprocError,
+                        location: self.get_pos(),
+                    });
+                }
+            }
+        }
+    }
+
     fn is_identifier_start(&self, c: char) -> bool {
         c == '_' || is_xid_start(c)
     }
@@ -1077,7 +1164,11 @@ where
                         self.next_char();
                         let tok_end = self.get_pos();
                         self.emit((tok_start, Tok::LDollarSqb, tok_end));
-                        self.nesting += 1;
+                        let args = self.lex_subproc(']')?;
+                        for arg in args {
+                            self.emit(arg);
+                        }
+                        self.eat_single_char(Tok::Rsqb);
                     }
                     _ => {
                         let tok_end = self.get_pos();
