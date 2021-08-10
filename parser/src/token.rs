@@ -70,6 +70,7 @@ pub enum Tok {
 
     // Xonsh tokens
     LDollarSqb,
+    LDollarPar,
     Dollar,
 
     // Keywords (alphabetically):
@@ -199,6 +200,7 @@ impl fmt::Display for Tok {
             Rarrow => f.write_str("'->'"),
             Ellipsis => f.write_str("'...'"),
             LDollarSqb => f.write_str("'$['"),
+            LDollarPar => f.write_str("'$('"),
             Dollar => f.write_str("'$'"),
             False => f.write_str("'False'"),
             None => f.write_str("'None'"),

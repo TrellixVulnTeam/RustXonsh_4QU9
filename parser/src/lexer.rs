@@ -1170,6 +1170,16 @@ where
                         }
                         self.eat_single_char(Tok::Rsqb);
                     }
+                    Some('(') => {
+                        self.next_char();
+                        let tok_end = self.get_pos();
+                        self.emit((tok_start, Tok::LDollarPar, tok_end));
+                        let args = self.lex_subproc(')')?;
+                        for arg in args {
+                            self.emit(arg);
+                        }
+                        self.eat_single_char(Tok::Rpar);
+                    }
                     _ => {
                         let tok_end = self.get_pos();
                         self.emit((tok_start, Tok::Dollar, tok_end));

@@ -1222,8 +1222,8 @@ Bytes: Vec<u8> = {
 
 Identifier: String = <s:name> => s;
 
-Subproc: ast::Expr = {
-    <location:@L> "$[" <s:(@L string)+> "]" =>? {
+SubprocArgs: (ast::Expr,ast::Expr) = {
+    <location:@L> <s:(@L string)+> =>? {
         let mut values = s.into_iter().map(|(loc, (value, is_fstring))| {
             if is_fstring {
                 parse_located_fstring(&value, loc)
@@ -1241,8 +1241,17 @@ Subproc: ast::Expr = {
             custom: (),
             node: ast::ExprKind::List { elts: args, ctx: ast::ExprContext::Load }
         };
-        Ok(rustxonsh_function_call(location, "subproc_uncaptured", vec![command,args_list_expr]))
+        Ok((command,args_list_expr))
     }
+};
+
+Subproc: ast::Expr = {
+    <location:@L> "$[" <a:SubprocArgs> "]" => {
+        rustxonsh_function_call(location, "subproc_uncaptured", vec![a.0,a.1])
+    },
+    <location:@L> "$(" <a:SubprocArgs> ")" => {
+        rustxonsh_function_call(location, "subproc_captured_stdout", vec![a.0,a.1])
+    },
 };
 
 // Hook external lexer:
@@ -1348,5 +1357,6 @@ extern {
         "\n" => lexer::Tok::Newline,
         ";" => lexer::Tok::Semi,
         "$[" => lexer::Tok::LDollarSqb,
+        "$(" => lexer::Tok::LDollarPar,
     }
 }
