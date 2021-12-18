@@ -1,3 +1,5 @@
+*This project has been abandoned :(*
+
 # RustXonsh
 
 The goal of RustXonsh is to rewrite [Xonsh](https://github.com/xonsh/xonsh) in Rust, based on code from [RustPython](https://github.com/RustPython/RustPython).
